@@ -6,7 +6,7 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    height: 100vh;
+    min-height: 100vh;
 }
 
 #chartContainer {
@@ -50,10 +50,35 @@ tr:hover {
     background-color: #e8f4f8;
 }
 
-.flex {
+.chart-controls {
     display: flex;
+    flex-direction: row;
+
+    margin-bottom: .5rem;
 }
 
-.flex-column {
-    flex-direction: column;
+.chart-controls label {
+    margin: .5rem;
+}
+
+@media screen and (max-width: 768px) {
+    #chartContainer {
+        --margin: 5px;
+        margin: var(--margin);
+        padding: 0;
+        width: calc(100% - var(--margin) * 2);
+        /* height: 100vh; */
+    }
+
+    .chart-controls {
+        /* align-items: center; */
+        flex-direction: column;
+        white-space: pre-line;
+    }
+
+    .table-scroller {
+        overflow-x: scroll;
+        width: 100%;
+        width: 100vw;
+    }
 }

@@ -1,3 +1,6 @@
+// Check if the screen width is 768 pixels or less
+const isMobile = () => window.innerWidth <= 768;
+
 // Initial setup
 const totalSupply = 21000000000;
 const blocksPerYear = 525600;
@@ -40,7 +43,8 @@ datasets.push({
     data: blockRewardsOriginal,
     fill: false,
     borderColor: 'rgb(255, 215, 0)', // Golden color
-    tension: 0.1
+    tension: 0.1,
+    pointRadius: isMobile() ? 0 : 1 // Hide the data points
 });
 
 // Add event listeners to input fields for automatic chart update
@@ -51,6 +55,11 @@ document.getElementById('inputYear').addEventListener('input', () => {
     updateTimeout = setTimeout(updateCurves, timeoutDuration);
 });
 document.getElementById('inputPercentage').addEventListener('input', () => {
+    clearTimeout(updateTimeout);
+    updateTimeout = setTimeout(updateCurves, timeoutDuration);
+});
+
+window.addEventListener('resize', () => {
     clearTimeout(updateTimeout);
     updateTimeout = setTimeout(updateCurves, timeoutDuration);
 });
@@ -73,7 +82,7 @@ function generateSecondCurveWithEmissionReduction(startingSupply, startYear, ini
 // Function to find the best emission reduction percentage
 function findBestEmissionReduction(startingSupply, startYear, initialPercentage) {
     let closest = { emissionReduction: 0, finalSupply: Number.MAX_VALUE, difference: Number.MAX_VALUE };
-    for (let reduction = 0; reduction <= 100; reduction += 0.001) { // Increment by 0.01% for finer granularity
+    for (let reduction = 0; reduction <= 100; reduction += 0.01) { // Increment by 0.01% for finer granularity
         const { finalSupply } = generateSecondCurveWithEmissionReduction(startingSupply, startYear, initialPercentage, reduction);
         const difference = Math.abs(finalSupply - totalSupply);
         if (difference < closest.difference) {
@@ -91,9 +100,12 @@ const curves = [
 
 function addCurve(startingSupply, inputYear, percentage, name, color) {
     const bestEmissionReduction = findBestEmissionReduction(startingSupply, inputYear, percentage);
-    let { data: blockRewardsNewCurve } = generateSecondCurveWithEmissionReduction(startingSupply, inputYear, percentage, bestEmissionReduction);
+    let { data: blockRewardsNewCurve } = generateSecondCurveWithEmissionReduction(
+        startingSupply, inputYear, percentage, bestEmissionReduction);
+
     // Append the emission reduction rate to the curve's label
     const labelWithEmissionReduction = `${name} (Yearly Emission Reduction: ${bestEmissionReduction.toFixed(2)}%)`;
+
     if (datasets[curves.indexOf(name)+1]) {
         datasets[curves.indexOf(name)+1].data = blockRewardsNewCurve;
         datasets[curves.indexOf(name)+1].label = labelWithEmissionReduction;
@@ -103,7 +115,8 @@ function addCurve(startingSupply, inputYear, percentage, name, color) {
             data: blockRewardsNewCurve,
             fill: false,
             borderColor: color,
-            tension: 0.1
+            tension: 0.1,
+            pointRadius: isMobile() ? 0 : 1, // Hide the data points
         });
     }
 }
@@ -135,25 +148,56 @@ function updateCurves() {
 function drawChart() {
     const ctx = document.getElementById('emissionCurve').getContext('2d');
     if (window.emissionChart) {
-        // Update the chart's data and options instead of destroying and recreating it
         window.emissionChart.data.labels = labels;
-        window.emissionChart.data.datasets = datasets;
+        window.emissionChart.data.datasets = datasets.map(dataset => ({
+            ...dataset,
+            pointRadius: isMobile() ? 0 : 2 // Hide the data points on mobile
+        }));
+        // Adjust font size for mobile
+        window.emissionChart.options.plugins.legend.labels.font.size = isMobile() ? 10 : 14; // Example sizes, adjust as needed
+        window.emissionChart.options.scales.x.ticks.font.size = isMobile() ? 10 : 14; // Adjust x-axis font size
+        window.emissionChart.options.scales.y.ticks.font.size = isMobile() ? 10 : 14; // Adjust y-axis font size
+        window.emissionChart.options.aspectRatio = isMobile() ? 1 : 2; // Adjust y-axis font size
+        window.emissionChart.options.scales.y.display = isMobile() ? false : true;
         window.emissionChart.update();
     } else {
-        // Create the chart for the first time
         window.emissionChart = new Chart(ctx, {
             type: 'line',
             data: {
                 labels: labels,
-                datasets: datasets
+                datasets: datasets.map(dataset => ({
+                    ...dataset,
+                    pointRadius: isMobile() ? 0 : 2 // Hide the data points on mobile
+                }))
             },
             options: {
+                animation: false,
+                aspectRatio: isMobile() ? 1 : 2,
                 scales: {
                     y: {
-                        beginAtZero: true
+                        display: isMobile() ? false : true,
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 10 : 14, // Reduce font size by 30% on mobile
+                            },
+                        },
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                size: isMobile() ? 10 : 14, // Reduce font size by 30% on mobile
+                            },
+                        },
                     }
                 },
                 plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                size: isMobile() ? 10 : 14, // Reduce font size by 30% on mobile
+                            },
+                        },
+                    },
                     tooltip: {
                         callbacks: {
                             label: function(context) {
@@ -267,5 +311,4 @@ function updateCurveValuesTable() {
     }
 }
 
-drawChart(); // Initial chart draw
-updateCurves(); // Update chart on load
+document.addEventListener('DOMContentLoaded', updateCurves); // Wait for the page to be fully loaded before updating curves
