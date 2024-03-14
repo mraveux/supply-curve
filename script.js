@@ -185,78 +185,86 @@ function updateCurveValuesTable() {
     const thead = table.querySelector('thead');
     const tbody = table.querySelector('tbody');
 
-    // Clear existing data
-    thead.innerHTML = ''; // Clear header
-    tbody.innerHTML = ''; // Clear body rows
+    // Update or create the header
+    let headerRow = thead.querySelector('tr');
+    if (!headerRow) {
+        headerRow = document.createElement('tr');
+        thead.appendChild(headerRow);
+    }
 
-    // Create the first header row for 'Year' and dataset labels
-    const headerRow = document.createElement('tr');
-    const yearHeaderCell = document.createElement('th');
-    yearHeaderCell.textContent = 'Year';
-    headerRow.appendChild(yearHeaderCell);
+    // Ensure the 'Year' column is always present
+    if (headerRow.cells.length === 0) {
+        const yearHeaderCell = document.createElement('th');
+        yearHeaderCell.textContent = 'Year';
+        headerRow.appendChild(yearHeaderCell);
+    }
 
-    // Add dataset labels as headers for the first row, including a line break after each name
-    datasets.forEach(dataset => {
-        const th = document.createElement('th');
+    // Update dataset headers
+    datasets.forEach((dataset, index) => {
+        let th = headerRow.cells[index + 1]; // +1 to skip the 'Year' column
+        if (!th) {
+            th = document.createElement('th');
+            headerRow.appendChild(th);
+        }
         th.colSpan = "2"; // Spanning two columns: one for supply and one for emission rate
-        // Insert a line break after the curve name
-        const labelWithLineBreak = dataset.label.replace(/(.+?)( \(|$)/, '$1<br>$2');
-        th.innerHTML = labelWithLineBreak; // Use innerHTML to include the <br> tag
-        headerRow.appendChild(th);
+        th.innerHTML = `${dataset.label}<br>(Supply, Emission Rate)`; // Use innerHTML to include the <br> tag
     });
 
-    thead.appendChild(headerRow);
+    // Adjust the number of header cells to match the datasets count
+    while (headerRow.cells.length > datasets.length + 1) {
+        headerRow.removeChild(headerRow.lastChild);
+    }
 
-    // Create a second header row for 'Supply' and 'Emission Rate' under each dataset
-    const subHeaderRow = document.createElement('tr');
-    const emptyCellForYearLabel = document.createElement('th'); // Empty cell under 'Year' label
-    subHeaderRow.appendChild(emptyCellForYearLabel);
-
-    // For each dataset, add 'Supply' and 'Emission Rate' sub-headers
-    datasets.forEach(() => {
-        const supplyHeader = document.createElement('th');
-        supplyHeader.textContent = 'Supply';
-        subHeaderRow.appendChild(supplyHeader);
-
-        const emissionRateHeader = document.createElement('th');
-        emissionRateHeader.textContent = 'Emission Rate';
-        subHeaderRow.appendChild(emissionRateHeader);
-    });
-
-    thead.appendChild(subHeaderRow);
-
-    // Populate rows, one for each year
+    // Update body rows
     labels.forEach((label, yearIndex) => {
-        const row = document.createElement('tr');
-        const yearCell = document.createElement('td');
-        yearCell.textContent = label; // Year label
-        row.appendChild(yearCell);
+        let row = tbody.rows[yearIndex];
+        if (!row) {
+            row = tbody.insertRow();
+        }
 
-        // Add data cells for each curve in this year, including supply and emission rate
+        // Ensure the 'Year' cell is always present
+        let yearCell = row.cells[0];
+        if (!yearCell) {
+            yearCell = row.insertCell();
+        }
+        yearCell.textContent = label;
+
         datasets.forEach((dataset, datasetIndex) => {
-            const supplyCell = document.createElement('td');
-            const emissionRateCell = document.createElement('td');
-            const formatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 }); // Adjusted for no decimals
+            const dataIndex = datasetIndex * 2; // Each dataset has two columns: supply and emission rate
+            let supplyCell = row.cells[dataIndex + 1]; // +1 to skip the 'Year' cell
+            let emissionRateCell = row.cells[dataIndex + 2];
 
+            if (!supplyCell) {
+                supplyCell = row.insertCell(dataIndex + 1);
+            }
+            if (!emissionRateCell) {
+                emissionRateCell = row.insertCell(dataIndex + 2);
+            }
+
+            const formatter = new Intl.NumberFormat('en-US', { maximumFractionDigits: 0 });
             const currentYearSupply = dataset.data[yearIndex];
             const nextYearSupply = dataset.data[yearIndex + 1];
             const emissionRate = yearIndex < dataset.data.length - 1 ? ((nextYearSupply - currentYearSupply) / currentYearSupply) * 100 : '—';
 
-            // Check for NaN and replace with dash
-            supplyCell.textContent = currentYearSupply !== undefined ? (isNaN(currentYearSupply) ? '—' : formatter.format(currentYearSupply)) : '—'; // Supply value
-            emissionRateCell.textContent = emissionRate !== '—' ? (isNaN(emissionRate) ? '—' : `${emissionRate.toFixed(2)}%`) : '—'; // Emission Rate value
+            supplyCell.textContent = currentYearSupply !== undefined ? (isNaN(currentYearSupply) ? '—' : formatter.format(currentYearSupply)) : '—';
+            emissionRateCell.textContent = emissionRate !== '—' ? (isNaN(emissionRate) ? '—' : `${emissionRate.toFixed(2)}%`) : '—';
 
             // Apply the dataset's borderColor as the left border color for the cells
             const borderColor = dataset.borderColor;
             supplyCell.style.borderLeft = `4px solid ${borderColor}`;
             emissionRateCell.style.borderLeft = `4px solid ${borderColor}`;
-
-            row.appendChild(supplyCell);
-            row.appendChild(emissionRateCell);
         });
 
-        tbody.appendChild(row);
+        // Adjust the number of cells in the row to match the datasets count
+        while (row.cells.length > datasets.length * 2 + 1) {
+            row.removeChild(row.lastChild);
+        }
     });
+
+    // Adjust the number of rows to match the labels count
+    while (tbody.rows.length > labels.length) {
+        tbody.deleteRow(tbody.rows.length - 1);
+    }
 }
 
 drawChart(); // Initial chart draw
