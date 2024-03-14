@@ -44,7 +44,7 @@ datasets.push({
 });
 
 // Add event listeners to input fields for automatic chart update
-const timeoutDuration = 250;
+const timeoutDuration = 500;
 let updateTimeout;
 document.getElementById('inputYear').addEventListener('input', () => {
     clearTimeout(updateTimeout);
