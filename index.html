@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- Fixed viewport -->
+  <title>Corrected Emission Curve</title>
+  <!-- Using Chart.js for drawing charts -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="chartContainer">
+    <div class="flex flex-column">
+      <label for="inputYear">PoS launch:</label>
+      <input type="number" id="inputYear" placeholder="Enter year" value="2024">
+      <label for="inputPercentage">Initial emissionrate in %:</label>
+      <input type="number" id="inputPercentage" placeholder="Enter percentage" value="3">
+    </div>
+    <canvas id="emissionCurve"></canvas>
+    <!-- Table to display curve values -->
+    <table id="curveValuesTable">
+      <thead>
+        <!-- Headers will be dynamically inserted here -->
+      </thead>
+      <tbody>
+        <!-- Data rows will be dynamically inserted here -->
+      </tbody>
+    </table>
+  </div>
+<script src="script.js"></script>
+</body>
+</html>
