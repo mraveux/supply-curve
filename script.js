@@ -39,10 +39,10 @@ function generateBlockRewards(k, circulatingSupply, labels, startYear = 2018, st
 // Generate original emission curve
 let blockRewardsOriginal = generateBlockRewards(kOriginal, originalCirculatingSupply, labels);
 datasets.push({
-    label: `PoW Curve`,
+    label: `GREEN Curve (PoW)`,
     data: blockRewardsOriginal,
     fill: false,
-    borderColor: 'rgb(255, 215, 0)', // Golden color
+    borderColor: 'rgb(90, 200, 90)', // Green color
     tension: 0.1,
     pointRadius: isMobile() ? 0 : 1 // Hide the data points
 });
@@ -93,8 +93,8 @@ function findBestEmissionReduction(startingSupply, startYear, initialPercentage)
 }
 
 const curves = [
-    'Blue curve 1',
-    'Blue curve 2',
+    'BLUE Curve',
+    'RED Curve',
     'Your curve',
 ];
 
@@ -132,13 +132,13 @@ function updateCurves() {
     // datasets = datasets.slice(0, 1); // Keep only the original dataset
 
     // Add the predefined curves first
-    addCurve(startingSupply, inputYear, 4.17, curves[0], 'rgb(70, 130, 180)'); // Slightly different blue tone
+    addCurve(startingSupply, inputYear, 4.17, curves[0], 'rgb(90, 90, 200)'); // Blue
 
     const initialRewardRate = (525 * 60 * 24 * 365) / startingSupply * 100; // Convert 525 per minute to annual percentage of the starting supply
-    addCurve(startingSupply, inputYear, initialRewardRate, curves[1], 'rgb(100, 149, 237)'); // Another slightly different blue tone
+    addCurve(startingSupply, inputYear, initialRewardRate, curves[1], 'rgb(200, 90, 90)'); // Red
 
     // Now add "Your Curve" to ensure it is the last one
-    addCurve(startingSupply, inputYear, inputPercentage, curves[2], 'rgb(190, 20, 20)'); // Light green color
+    addCurve(startingSupply, inputYear, inputPercentage, curves[2], 'rgb(255, 215, 0)'); // Golden color
 
     // Redraw chart with updated datasets
     drawChart();
