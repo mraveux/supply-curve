@@ -11,6 +11,19 @@ let labels = [];
 let datasets = [];
 let originalCirculatingSupply = initialCirculatingSupply;
 
+const curves = [
+    'GREY curve',
+    'RED Curve',
+    'GREEN Curve',
+    'Yellow Curve',
+];
+
+const colors = [
+    'rgb(128, 128, 128)',
+    'rgb(200, 90, 90)',
+    'rgb(90, 200, 90)',
+    'rgb(255, 215, 0)',
+];
 // Generate labels for each year
 for (let year = 2018; year < 2018 + simulationYears; year++) {
     labels.push(year.toString());
@@ -39,10 +52,10 @@ function generateBlockRewards(k, circulatingSupply, labels, startYear = 2018, st
 // Generate original emission curve
 let blockRewardsOriginal = generateBlockRewards(kOriginal, originalCirculatingSupply, labels);
 datasets.push({
-    label: `GREEN Curve (PoW)`,
+    label: `${curves[0]} (No Change, Current Curve)`,
     data: blockRewardsOriginal,
     fill: false,
-    borderColor: 'rgb(90, 200, 90)', // Green color
+    borderColor: colors[0], // Green color
     tension: 0.1,
     pointRadius: isMobile() ? 0 : 1 // Hide the data points
 });
@@ -92,23 +105,32 @@ function findBestEmissionReduction(startingSupply, startYear, initialPercentage)
     return closest.emissionReduction;
 }
 
-const curves = [
-    'BLUE Curve',
-    'RED Curve',
-    'Your curve',
-];
-
 function addCurve(startingSupply, inputYear, percentage, name, color) {
     const bestEmissionReduction = findBestEmissionReduction(startingSupply, inputYear, percentage);
     let { data: blockRewardsNewCurve } = generateSecondCurveWithEmissionReduction(
         startingSupply, inputYear, percentage, bestEmissionReduction);
 
-    // Append the emission reduction rate to the curve's label
-    const labelWithEmissionReduction = `${name} (Yearly Emission Reduction: ${bestEmissionReduction.toFixed(2)}%)`;
+    // const labelWithEmissionReduction = `${name} (Yearly Emission Reduction: ${bestEmissionReduction.toFixed(2)}%)`;
 
-    if (datasets[curves.indexOf(name)+1]) {
-        datasets[curves.indexOf(name)+1].data = blockRewardsNewCurve;
-        datasets[curves.indexOf(name)+1].label = labelWithEmissionReduction;
+    // Adjust the label based on the curve name
+    let labelWithEmissionReduction;
+    switch (name) {
+        case 'GREEN Curve':
+            labelWithEmissionReduction = `${name} (Initial Emission Rate Matched ~${percentage.toFixed(2)}%/year)`;
+            break;
+        case 'RED Curve':
+            labelWithEmissionReduction = `${name} (Initial Emission Rate Matched ~${percentage.toFixed(2)}%/year)`;
+            break;
+        case 'Yellow Curve':
+            labelWithEmissionReduction = `${name} (Your Curve)`;
+            break;
+        default:
+            labelWithEmissionReduction = `${name} (Yearly Emission Reduction: ${bestEmissionReduction.toFixed(2)}%)`;
+    }
+
+    if (datasets[curves.indexOf(name)]) {
+        datasets[curves.indexOf(name)].data = blockRewardsNewCurve;
+        datasets[curves.indexOf(name)].label = labelWithEmissionReduction;
     } else {
         datasets.push({
             label: labelWithEmissionReduction,
@@ -132,13 +154,13 @@ function updateCurves() {
     // datasets = datasets.slice(0, 1); // Keep only the original dataset
 
     // Add the predefined curves first
-    addCurve(startingSupply, inputYear, 4.17, curves[0], 'rgb(90, 90, 200)'); // Blue
+    addCurve(startingSupply, inputYear, 4.17, curves[1], colors[1]); // Blue
 
     const initialRewardRate = (525 * 60 * 24 * 365) / startingSupply * 100; // Convert 525 per minute to annual percentage of the starting supply
-    addCurve(startingSupply, inputYear, initialRewardRate, curves[1], 'rgb(200, 90, 90)'); // Red
+    addCurve(startingSupply, inputYear, initialRewardRate, curves[2], colors[2]); // Red
 
     // Now add "Your Curve" to ensure it is the last one
-    addCurve(startingSupply, inputYear, inputPercentage, curves[2], 'rgb(255, 215, 0)'); // Golden color
+    addCurve(startingSupply, inputYear, inputPercentage, curves[3], colors[3]); // Golden color
 
     // Redraw chart with updated datasets
     drawChart();
