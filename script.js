@@ -5,7 +5,7 @@ const isMobile = () => window.innerWidth <= 768;
 const totalSupply = 21000000000;
 const blocksPerYear = 525600;
 const initialCirculatingSupply = 2520000000;
-const simulationYears = 100;
+const simulationYears = 100; // Simulation duration in years
 const kOriginal = 22;
 let labels = [];
 let datasets = [];
@@ -24,9 +24,15 @@ const colors = [
     'rgb(90, 200, 90)',
     'rgb(255, 215, 0)',
 ];
-// Generate labels for each year
-for (let year = 2018; year < 2018 + simulationYears; year++) {
-    labels.push(year.toString());
+
+// Adjusted start year and month for label generation
+const startYear = 2018;
+const startMonth = 4; // April
+const startDate = 14; // 14th
+
+// Generate labels for each year, starting from April 14th, 2018
+for (let year = startYear; year < startYear + simulationYears; year++) {
+    labels.push(`April ${year}`);
 }
 
 // Function to generate block rewards
@@ -116,16 +122,16 @@ function addCurve(startingSupply, inputYear, percentage, name, color) {
     let labelWithEmissionReduction;
     switch (name) {
         case 'GREEN Curve':
-            labelWithEmissionReduction = `${name} (Initial Emission Rate Matched ~${percentage.toFixed(2)}%/year)`;
+            labelWithEmissionReduction = `${name} (525 NIM Initial Reward/Block)`;
             break;
         case 'RED Curve':
-            labelWithEmissionReduction = `${name} (Initial Emission Rate Matched ~${percentage.toFixed(2)}%/year)`;
+            labelWithEmissionReduction = `${name} (4,17% Initial 'Inflation')`;
             break;
         case 'Yellow Curve':
             labelWithEmissionReduction = `${name} (Your Curve)`;
             break;
         default:
-            labelWithEmissionReduction = `${name} (Yearly Emission Reduction: ${bestEmissionReduction.toFixed(2)}%)`;
+            labelWithEmissionReduction = `${name} (Yearly Emission Reduction: ${bestEmissionReduction.toFixed(1)}%)`;
     }
 
     if (datasets[curves.indexOf(name)]) {
@@ -230,7 +236,7 @@ function drawChart() {
                                     const currentYearSupply = dataset[index];
                                     const nextYearSupply = dataset[index + 1];
                                     const emissionRate = ((nextYearSupply - currentYearSupply) / currentYearSupply) * 100;
-                                    return `Year: ${labels[index]}, Emission Rate: ${emissionRate.toFixed(2)}%, Supply: ${formatter.format(dataset[index])}`;
+                                    return `Year: ${labels[index]}, Emission Rate: ${emissionRate.toFixed(1)}%, Supply: ${formatter.format(dataset[index])}`;
                                 } else {
                                     return `Supply at ${labels[index]}: ${formatter.format(dataset[index])}`;
                                 }
@@ -313,7 +319,7 @@ function updateCurveValuesTable() {
             const emissionRate = yearIndex < dataset.data.length - 1 ? ((nextYearSupply - currentYearSupply) / currentYearSupply) * 100 : '—';
 
             supplyCell.textContent = currentYearSupply !== undefined ? (isNaN(currentYearSupply) ? '—' : formatter.format(currentYearSupply)) : '—';
-            emissionRateCell.textContent = emissionRate !== '—' ? (isNaN(emissionRate) ? '—' : `${emissionRate.toFixed(2)}%`) : '—';
+            emissionRateCell.textContent = emissionRate !== '—' ? (isNaN(emissionRate) ? '—' : `${emissionRate.toFixed(1)}%`) : '—';
 
             // Apply the dataset's borderColor as the left border color for the cells
             const borderColor = dataset.borderColor;
