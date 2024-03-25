@@ -131,7 +131,7 @@ function addCurve(startingSupply, inputYear, percentage, name, color) {
             labelWithEmissionReduction = `${name} (Your Curve)`;
             break;
         default:
-            labelWithEmissionReduction = `${name} (Yearly Emission Reduction: ${bestEmissionReduction.toFixed(1)}%)`;
+            labelWithEmissionReduction = `${name} (Yearly Emission Reduction: ${bestEmissionReduction.toFixed(2)}%)`;
     }
 
     if (datasets[curves.indexOf(name)]) {
