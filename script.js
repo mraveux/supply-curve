@@ -122,10 +122,10 @@ function addCurve(startingSupply, inputYear, percentage, name, color) {
     let labelWithEmissionReduction;
     switch (name) {
         case 'GREEN Curve':
-            labelWithEmissionReduction = `${name} (525 NIM Initial Reward/Block)`;
+            labelWithEmissionReduction = `${name} (- A - 525 NIM Initial Reward/Block)`;
             break;
         case 'RED Curve':
-            labelWithEmissionReduction = `${name} (4,17% Initial 'Inflation')`;
+            labelWithEmissionReduction = `${name} (- B - 4,17% Initial 'Inflation')`;
             break;
         case 'Yellow Curve':
             labelWithEmissionReduction = `${name} (Your Curve)`;
